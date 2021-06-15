@@ -145,7 +145,7 @@ Future<bool> _exitAppSafari(BuildContext context) async {
 }
    @override
   Widget build(BuildContext context) {
-    if (load)
+    if (load){
       return Scaffold(
         backgroundColor: Colors.black,
         bottomNavigationBar: Container(
@@ -268,6 +268,7 @@ Future<bool> _exitAppSafari(BuildContext context) async {
           },
         ),
       );
+    }
     else {
       return Scaffold(
         backgroundColor: Colors.white,
