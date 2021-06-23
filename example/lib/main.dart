@@ -36,6 +36,35 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
+    var options = {
+      "brandId": "c41ade6a-fd1c-4e8b-ac78-4df64da8ae5f",
+      "productData": {
+        "Bracelets": {
+          "items": ["BR-01", "BR-02", "BR-03"],
+          "type": "wrist"
+        },
+        "Earrings": {
+          "items": ["1503677279384_RIB_2113_1", "CT-2032", "CS2124E"],
+          "type": "ear"
+        },
+        "Rings": {
+          "items": ["RN-01", "RN-013", "RN-01543"],
+          "type": "finger"
+        },
+        "Sets": {
+          "items": ["CS-414"],
+          "type": "set"
+        }
+      }
+    };
+    // platformVersion = 'Failed to get platform version.';
+
+    // try {
+    //   PluginMirrar.launchTyrOn;
+    // } on PlatformException {
+    //   platformVersion = 'Failed to get platform version.';
+    // }
+
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.

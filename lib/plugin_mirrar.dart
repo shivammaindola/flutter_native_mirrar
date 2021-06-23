@@ -10,4 +10,9 @@ class PluginMirrar {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
+
+  static launchTyrOn(Map<String, dynamic> options) {
+    _channel.invokeMethod('launchTyrOn');
+  }
+
 }
