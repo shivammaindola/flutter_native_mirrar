@@ -28,14 +28,15 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await PluginMirrar.platformVersion ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
+    // We also handle the message potentially returning null
 
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+  }
+
+  void launchTryOn() {
     var options = {
       "brandId": "c41ade6a-fd1c-4e8b-ac78-4df64da8ae5f",
       "productData": {
@@ -57,22 +58,8 @@ class _MyAppState extends State<MyApp> {
         }
       }
     };
-    // platformVersion = 'Failed to get platform version.';
+    PluginMirrar.launchTyrOn(options);
 
-    // try {
-    //   PluginMirrar.launchTyrOn;
-    // } on PlatformException {
-    //   platformVersion = 'Failed to get platform version.';
-    // }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
   }
 
   @override
@@ -83,7 +70,13 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: TextButton(
+            style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+            ),
+            onPressed: launchTryOn,
+            child: Text('Launch Try-On'),
+          ),
         ),
       ),
     );

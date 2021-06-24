@@ -2,99 +2,53 @@ import Flutter
 import UIKit
 import Foundation
 
+fileprivate var channel: FlutterMethodChannel!
+fileprivate var flutterVC: UIViewController?
+
 public class SwiftPluginMirrarPlugin: NSObject, FlutterPlugin {
     
   private var mainCoordinator: AppCoordinator?
-
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "plugin_mirrar", binaryMessenger: registrar.messenger())
+    channel = FlutterMethodChannel(name: "plugin_mirrar", binaryMessenger: registrar.messenger())
     let instance = SwiftPluginMirrarPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-
-//         guard call.method == "launchTyrOn" else {
-//             result(FlutterMethodNotImplemented)
-//             return
-//         }
-//         if let args = call.arguments as? Dictionary<String, Any> {
-//             let options = getModelFrom(args)
-//             let vc = TryOnViewController(screenTitle: "Custom Try-On Title", //Optional
-//                                          screenTitleColor: .black,    //Optional
-//                                          navigationBarColor: .white,  //Optional
-//                                          dismissTitle: " <  Dismiss",    //Optional
-//                                          dismissTitleColor: .black,    //Optional
-//                                          dismissBackgroundColor: .white, // Optional
-//                                          options: options //Required
-//             )
-//             let vc = TryOnViewController()
-//             UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController = vc
-//         } else {
-//             result(FlutterMethodNotImplemented)
-//             return
-//         }
-
-
-            let vc = TryOnViewController()
-            UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController = vc
-
-//     let flutterViewController: FlutterViewController = UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController as! FlutterViewController
-//     let navigationController = UINavigationController(rootViewController: flutterViewController)
-//    navigationController.isNavigationBarHidden = true
-//    navigationController.viewControllers = [flutterViewController, TryOnViewController()];
-//    UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController = navigationController
-//    UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.makeKeyAndVisible()
-
-//    print(flutterViewController)
-//    UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController = flutterViewController
-
-    
-//    let navigationController = UINavigationController(rootViewController: flutterViewController)
-//    navigationController.isNavigationBarHidden = true
-//    window?.rootViewController = navigationController
-//    mainCoordinator = AppCoordinator(navigationController: navigationController)
-//    window?.makeKeyAndVisible()
-
-
-    
-//    let vc = TryOnViewController()
-    
-//     let navigationController = UINavigationController(rootViewController: vc)
-//     navigationController.isNavigationBarHidden = true
-//     UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController = navigationController
-    
-    
-//    mainCoordinator = AppCoordinator(navigationController: navigationController)
-//    mainCoordinator?.start()
-    
-//    vc.coordinatorDelegate = self
-//    navigationController?.pushViewController(vc, animated: true)
-
-//    guard call.method == "goToTryOn" else {
-//        result(FlutterMethodNotImplemented)
-//        return
-//    }
-//    if let args = call.arguments as? Dictionary<String, Any> {
-//        let options = getModelFrom(args)
-//        self.mainCoordinator?.start(with: options)
-//    } else {
-//        result(FlutterMethodNotImplemented)
-//        return
-//    }
-//
-//    result("iOS " + UIDevice.current.systemVersion)
+        flutterVC = (UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController)
+        guard call.method == "launchTyrOn" else {
+            result(FlutterMethodNotImplemented)
+            return
+        }
+        if let args = call.arguments as? Dictionary<String, Any> {
+            let options = getModelFrom(args)
+            let vc = TryOnViewController(screenTitle: "Virtual Try-On", //Optional
+                                         screenTitleColor: .black,    //Optional
+                                         navigationBarColor: .white,  //Optional
+                                         dismissTitle: "Dismiss",    //Optional
+                                         dismissTitleColor: .black,    //Optional
+                                         dismissBackgroundColor: .white, // Optional
+                                         options: options //Required
+            )
+            let nav = UINavigationController(rootViewController: vc)
+            UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController = nav
+        } else {
+            result(FlutterMethodNotImplemented)
+            return
+        }
   }
 
   func getModelFrom(_ dic: Dictionary<String, Any>) -> Options {
       var arrayProducts = [ProductData]()
-      let products = (dic["options"] as! [String: Any])["productData"] as! [String: Any]
+       let products = dic["productData"] as! [String: Any]
+
+//       let products = (dic["options"] as! [String: Any])["productData"] as! [String: Any]
       for (key, value) in products {
           let v = value as! [String: Any]
           let product = ProductData(category: key, items: v["items"] as! [String], type: v["type"] as! String)
           arrayProducts.append(product)
       }
-      let brandId = (dic["options"] as! [String: Any])["brandId"] as? String ?? ""
+      let brandId = dic["brandId"] as? String ?? ""
       return Options(brandId: brandId, productData: arrayProducts)
   }
 }
@@ -161,7 +115,7 @@ public final class TryOnViewController: UIViewController {
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        let urlStr = "http://www.google.co.in" //"\(BASE_URL)?brand_id=\(options.brandId)\(getUrlStrFromData())&sku=\(getSKU())&platform=ios-sdk";
+        let urlStr = "\(BASE_URL)?brand_id=\(options.brandId)\(getUrlStrFromData())&sku=\(getSKU())&platform=ios-sdk";
         print(urlStr)
         let url = URL(string: urlStr)
         safari = SFSafariViewController(url: url!)
@@ -238,8 +192,7 @@ public final class TryOnViewController: UIViewController {
     }
     
     func dismissTryOnController() {
-//        coordinatorDelegate?.navigateToFlutter();
-        self.navigationController?.popToRootViewController(animated: true)
+        UIApplication.shared.windows.filter {$0.isKeyWindow}.first!.rootViewController = flutterVC as! UIViewController
     }
     
     func isModel() -> Bool {
